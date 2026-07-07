@@ -1,4 +1,17 @@
 CFG_FTPM_EMULATE_PPI ?= n
+
+# Volatile-NV test mode (CI / storage-less environments, e.g. bare QEMU +
+# U-Boot with no RPMB). When y: NV state lives in RAM only, manufactured
+# fresh each boot, no TEE storage syscalls are issued (a storage-less core
+# returns TEE_ERROR_NOT_IMPLEMENTED, which libutee must TEE_Panic on per the
+# GP spec — uncatchable TA-side), and the TA enumerates with plain
+# TA_FLAG_DEVICE_ENUM instead of TA_FLAG_DEVICE_ENUM_TEE_STORAGE_PRIVATE so
+# U-Boot's device.pta scan can find it before any storage exists.
+# NEVER enable on production hardware — TPM state does not persist.
+CFG_FTPM_VOLATILE_NV ?= n
+ifeq ($(CFG_FTPM_VOLATILE_NV),y)
+cppflags-y += -DTA_FTPM_VOLATILE_NV=1
+endif
 CFG_FTPM_TA_TEE_STORAGE_ID ?= TEE_STORAGE_PRIVATE
 
 #
