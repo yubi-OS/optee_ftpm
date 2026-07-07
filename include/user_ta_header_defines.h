@@ -51,7 +51,7 @@
 
 #define TA_UUID		TA_FTPM_UUID
 
-#ifdef TA_FTPM_VOLATILE_NV
+#ifdef CFG_FTPM_VOLATILE_NV
 /*
  * Volatile-NV test mode (CFG_FTPM_VOLATILE_NV=y): enumerate with plain
  * TA_FLAG_DEVICE_ENUM — there is no secure storage, so the storage-private
