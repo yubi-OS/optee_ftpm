@@ -51,10 +51,22 @@
 
 #define TA_UUID		TA_FTPM_UUID
 
+#ifdef CFG_FTPM_VOLATILE_NV
+/*
+ * Volatile-NV test mode (CFG_FTPM_VOLATILE_NV=y): enumerate with plain
+ * TA_FLAG_DEVICE_ENUM — there is no secure storage, so the storage-private
+ * enumeration gate would hide the TA from U-Boot's device.pta scan forever.
+ */
+#define TA_FLAGS                (TA_FLAG_SINGLE_INSTANCE | \
+				 TA_FLAG_INSTANCE_KEEP_ALIVE | \
+				 TA_FLAG_INSTANCE_KEEP_CRASHED | \
+				 TA_FLAG_DEVICE_ENUM)
+#else
 #define TA_FLAGS                (TA_FLAG_SINGLE_INSTANCE | \
 				 TA_FLAG_INSTANCE_KEEP_ALIVE | \
 				 TA_FLAG_INSTANCE_KEEP_CRASHED | \
 				 TA_FLAG_DEVICE_ENUM_TEE_STORAGE_PRIVATE)
+#endif
 #define TA_STACK_SIZE           (64 * 1024)
 #define TA_DATA_SIZE            (32 * 1024)
 

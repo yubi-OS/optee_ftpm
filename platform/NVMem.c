@@ -149,6 +149,15 @@ _plat__NvInitFromStorage()
 		return;
 	}
 
+#ifdef CFG_FTPM_VOLATILE_NV
+	// Volatile-NV test mode: no storage backend exists. Manufacture fresh
+	// RAM-only state; never touch TEE storage syscalls (see sub.mk).
+	s_NVChipFileNeedsManufacture = TRUE;
+	s_blockMap = 0;
+	s_NVInitialized = FALSE;
+	return;
+#endif
+
 	//
 	// If the NV file is successfully read from the storage then
 	// initialized must be set. We are setting initialized to true
@@ -303,6 +312,12 @@ _plat__NvWriteBack()
 	TEE_Result Result;
 
 	// Exit if no dirty blocks.
+#ifdef CFG_FTPM_VOLATILE_NV
+	// Volatile-NV test mode: drop write-back entirely.
+	s_blockMap = 0;
+	return;
+#endif
+
 	if ((!s_blockMap) || (!s_NVInitialized)) {
 		return;
 	}
