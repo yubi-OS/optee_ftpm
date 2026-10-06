@@ -1,5 +1,9 @@
 name: CI
 on: [push, pull_request]
+concurrency:
+  group: ci-${{ github.ref }}  # unique per branch
+  # cancel previous runs on the same branch, except for master
+  cancel-in-progress: ${{ github.ref != 'master' }}
 permissions:
   contents: read # to fetch code (actions/checkout)
 jobs:
@@ -7,18 +11,14 @@ jobs:
     name: make check (QEMUv8)
     runs-on: ubuntu-latest
     steps:
-      - name: Host cleanup
-        run: |
-          wget https://raw.githubusercontent.com/OP-TEE/optee_os/refs/heads/master/scripts/ci-host-cleanup.sh
-          bash ci-host-cleanup.sh
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Update Git config
         run: git config --global --add safe.directory ${GITHUB_WORKSPACE}
       - name: Restore build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
-          path: /github/home/.cache/ccache
+          path: /home/runner/work/ccache
           key: qemuv8_check-cache-${{ github.sha }}
           restore-keys: |
             qemuv8_check-cache-
